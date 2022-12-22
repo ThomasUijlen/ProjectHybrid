@@ -10,12 +10,23 @@ var analyzeURL = "vision/v3.2/read/analyze"
 var operationLocation = ""
 
 func _ready():
-	$AnalyzeRequest.request(endPoint+analyzeURL, 
+#	$AnalyzeRequest.request(endPoint+analyzeURL, 
+#	["Host: "+host,
+#		"Content-Type: application/json",
+#		"Ocp-Apim-Subscription-Key: "+key],
+#	false, 
+#	HTTPClient.METHOD_POST, to_json({"url" : imageURL}))
+	
+	var file = File.new()
+	file.open("res://Images/Test2.jpg",File.READ)
+	var fileContent = file.get_buffer(file.get_len())
+	
+	$AnalyzeRequest.request_raw(endPoint+analyzeURL, 
 	["Host: "+host,
-		"Content-Type: application/json",
+		"Content-Type: application/octet-stream",
 		"Ocp-Apim-Subscription-Key: "+key],
 	false, 
-	HTTPClient.METHOD_POST, to_json({"url" : imageURL}))
+	HTTPClient.METHOD_POST, fileContent)
 
 
 func _on_HTTPRequest_request_completed(result, response_code, headers, body):
@@ -28,7 +39,7 @@ func _on_HTTPRequest_request_completed(result, response_code, headers, body):
 	attemptRead()
 
 func attemptRead():
-	yield(get_tree().create_timer(1), "timeout")
+	yield(get_tree().create_timer(5), "timeout")
 	
 	$RetrieveRequest.request(operationLocation, 
 	["Ocp-Apim-Subscription-Key: "+key],
