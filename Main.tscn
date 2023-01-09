@@ -9,5 +9,8 @@ script = ExtResource( 1 )
 
 [node name="RetrieveRequest" type="HTTPRequest" parent="."]
 
+[node name="EmotionRequest" type="HTTPRequest" parent="."]
+
 [connection signal="request_completed" from="AnalyzeRequest" to="." method="_on_HTTPRequest_request_completed"]
 [connection signal="request_completed" from="RetrieveRequest" to="." method="_on_RetrieveRequest_request_completed"]
+[connection signal="request_completed" from="EmotionRequest" to="." method="_on_EmotionRequest_request_completed"]

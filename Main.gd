@@ -3,43 +3,60 @@ extends Node2D
 var key = "9026448ec0974609883be3a3fd84b2d2"
 var endPoint = "https://legendarischeserver.cognitiveservices.azure.com/"
 var host = "legendarischeserver.cognitiveservices.azure.com"
-var imageURL = "https://learn.microsoft.com/nl-nl/azure/cognitive-services/computer-vision/images/handwritten-note.jpg"
+var emotionURL = "https://api.nlpcloud.io/v1/distilbert-base-uncased-emotion/sentiment"
+var emotionToken = "1730fc0aa4e5d95e8956f79441afa28560abee3e"
 
 var analyzeURL = "vision/v3.2/read/analyze"
 
 var operationLocation = ""
 
-func _ready():
-#	$AnalyzeRequest.request(endPoint+analyzeURL, 
-#	["Host: "+host,
-#		"Content-Type: application/json",
-#		"Ocp-Apim-Subscription-Key: "+key],
-#	false, 
-#	HTTPClient.METHOD_POST, to_json({"url" : imageURL}))
+var scannedFiles = []
+var directory = Directory.new()
+
+var scanning = false
+
+var t = 3.0
+func _process(delta):
+	t += delta
+	if t > 3.0:
+		t = 0.0
+		
+		directory.open("res://Webcam/Webcam/Images")
+		directory.list_dir_begin()
+		var file_name = directory.get_next()
+		while file_name != "":
+			if directory.current_is_dir():
+				pass
+			else:
+				if !(".import" in file_name) and ".jpg" in file_name:
+					scanImage("res://Webcam/Webcam/Images/"+file_name)
+			file_name = directory.get_next()
+
+func scanImage(path):
+	if scanning || scannedFiles.has(path): return
 	
 	var file = File.new()
-	file.open("res://Images/Test2.jpg",File.READ)
+	file.open(path,File.READ)
 	var fileContent = file.get_buffer(file.get_len())
 	
 	$AnalyzeRequest.request_raw(endPoint+analyzeURL, 
 	["Host: "+host,
 		"Content-Type: application/octet-stream",
 		"Ocp-Apim-Subscription-Key: "+key],
-	false, 
+	false,
 	HTTPClient.METHOD_POST, fileContent)
+	
+	scanning = true
+	scannedFiles.append(path)
 
 
 func _on_HTTPRequest_request_completed(result, response_code, headers, body):
-	print("request completed")
-	print(response_code)
-	print(headers[1])
 	operationLocation = headers[1].split(": ")[1]
-	print(operationLocation)
 	
 	attemptRead()
 
 func attemptRead():
-	yield(get_tree().create_timer(5), "timeout")
+	yield(get_tree().create_timer(0.5), "timeout")
 	
 	$RetrieveRequest.request(operationLocation, 
 	["Ocp-Apim-Subscription-Key: "+key],
@@ -51,6 +68,33 @@ func _on_RetrieveRequest_request_completed(result, response_code, headers, body)
 	var data = body.get_string_from_utf8()
 	var json = JSON.parse(data)
 	
+	if !json.result.has("analyzeResult"):
+		attemptRead()
+		return
+	
+	print("succesful read")
+	print("--------------")
 	var lines = json.result["analyzeResult"]["readResults"][0]["lines"]
+	
+	var text = ""
 	for line in lines:
 		print(line["text"])
+		text += line["text"]
+		text += " "
+	
+	scanning = false
+	readEmotions(text)
+
+func readEmotions(text):
+	$EmotionRequest.request(emotionURL, 
+	["Content-Type: application/json",
+	"Authorization: Token "+emotionToken],
+	false, 
+	HTTPClient.METHOD_POST, to_json({"text" : text}))
+
+func _on_EmotionRequest_request_completed(result, response_code, headers, body):
+	print("retrieve completed")
+	var data = body.get_string_from_utf8()
+	var json = JSON.parse(data)
+	
+	print(json.result)
