@@ -3,6 +3,9 @@ extends Node2D
 var key = "9026448ec0974609883be3a3fd84b2d2"
 var endPoint = "https://legendarischeserver.cognitiveservices.azure.com/"
 var host = "legendarischeserver.cognitiveservices.azure.com"
+
+var translationURL = "https://api.nlpcloud.io/v1/nllb-200-3-3b/translation"
+
 var emotionURL = "https://api.nlpcloud.io/v1/distilbert-base-uncased-emotion/sentiment"
 var emotionToken = "1730fc0aa4e5d95e8956f79441afa28560abee3e"
 
@@ -28,7 +31,7 @@ func _process(delta):
 			if directory.current_is_dir():
 				pass
 			else:
-				if !(".import" in file_name) and ".jpg" in file_name:
+				if !(".import" in file_name) and (".jpg" in file_name or ".jpeg" in file_name):
 					scanImage("res://Webcam/Webcam/Images/"+file_name)
 			file_name = directory.get_next()
 
@@ -46,7 +49,6 @@ func scanImage(path):
 	false,
 	HTTPClient.METHOD_POST, fileContent)
 	
-	scanning = true
 	scannedFiles.append(path)
 
 
@@ -64,7 +66,6 @@ func attemptRead():
 	HTTPClient.METHOD_GET)
 
 func _on_RetrieveRequest_request_completed(result, response_code, headers, body):
-	print("retrieve completed")
 	var data = body.get_string_from_utf8()
 	var json = JSON.parse(data)
 	
@@ -72,7 +73,8 @@ func _on_RetrieveRequest_request_completed(result, response_code, headers, body)
 		attemptRead()
 		return
 	
-	print("succesful read")
+	print("--------------")
+	print("succesful read "+str(response_code))
 	print("--------------")
 	var lines = json.result["analyzeResult"]["readResults"][0]["lines"]
 	
@@ -83,7 +85,31 @@ func _on_RetrieveRequest_request_completed(result, response_code, headers, body)
 		text += " "
 	
 	scanning = false
-	readEmotions(text)
+	translateText(text)
+
+func translateText(text):
+	$TranslationRequest.request(translationURL, 
+	["Content-Type: application/json",
+	"Authorization: Token "+emotionToken],
+	false, 
+	HTTPClient.METHOD_POST, to_json(
+		{"text" : text,
+		"source" : "nld_Latn",
+		"target" : "eng_Latn"}
+		))
+
+func _on_TranslationRequest_request_completed(result, response_code, headers, body):
+	var data = body.get_string_from_utf8()
+	var json = JSON.parse(data)
+	
+	print("--------------")
+	print("succesful translation "+str(response_code))
+	print("--------------")
+	print(json.result["translation_text"])
+	
+	yield(get_tree().create_timer(5.0), "timeout")
+	
+	readEmotions(json.result["translation_text"])
 
 func readEmotions(text):
 	$EmotionRequest.request(emotionURL, 
@@ -93,8 +119,17 @@ func readEmotions(text):
 	HTTPClient.METHOD_POST, to_json({"text" : text}))
 
 func _on_EmotionRequest_request_completed(result, response_code, headers, body):
-	print("retrieve completed")
 	var data = body.get_string_from_utf8()
 	var json = JSON.parse(data)
 	
-	print(json.result)
+	print("--------------")
+	print("succesful emotion analysis "+str(response_code))
+	print("--------------")
+	
+	for emotion in json.result["scored_labels"]:
+		print(emotion)
+	
+	scanning = false
+
+
+
