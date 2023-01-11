@@ -4,8 +4,8 @@ Capture cam;
 
 void setup() {
   //fullScreen();
-  //size(640, 480);
-  size(960, 540);
+  size(640, 480);
+  //size(960, 540);
 
   String[] cameras = Capture.list();
   
@@ -20,7 +20,7 @@ void setup() {
     
     // The camera can be initialized directly using an 
     // element from the array returned by list():
-    cam = new Capture(this, 960, 540, "USB Camera");
+    cam = new Capture(this, cameras[1]);
     cam.start();
   }      
 }

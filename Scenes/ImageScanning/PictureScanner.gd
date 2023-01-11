@@ -107,7 +107,7 @@ func _on_TranslationRequest_request_completed(result, response_code, headers, bo
 	print("--------------")
 	print(json.result["translation_text"])
 	
-	yield(get_tree().create_timer(5.0), "timeout")
+	yield(get_tree().create_timer(4.0), "timeout")
 	
 	readEmotions(json.result["translation_text"])
 
@@ -126,8 +126,17 @@ func _on_EmotionRequest_request_completed(result, response_code, headers, body):
 	print("succesful emotion analysis "+str(response_code))
 	print("--------------")
 	
-	for emotion in json.result["scored_labels"]:
-		print(emotion)
+	var emotions = {}
+	for emotionData in json.result["scored_labels"]:
+		var emotionName = emotionData["label"]
+		var score = emotionData["score"]
+		
+		TextDatabase.set(emotionName, TextDatabase.get(emotionName)+score)
+		TextDatabase.emotionTotal += score
+		emotions[emotionName] = score
+	
+	TextDatabase.addEmotion(emotions)
+	TextDatabase.emit_signal("databaseChanged")
 	
 	scanning = false
 

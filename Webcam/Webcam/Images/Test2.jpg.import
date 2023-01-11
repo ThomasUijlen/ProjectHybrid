@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/153867.jpg-610d6872d3b969cb89d2e3b479a180d4.stex"
+path="res://.import/Test2.jpg-7671d799e6e53dd037ca6b1451869c38.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Webcam/Webcam/Images/153867.jpg"
-dest_files=[ "res://.import/153867.jpg-610d6872d3b969cb89d2e3b479a180d4.stex" ]
+source_file="res://Webcam/Webcam/Images/Test2.jpg"
+dest_files=[ "res://.import/Test2.jpg-7671d799e6e53dd037ca6b1451869c38.stex" ]
 
 [params]
 
