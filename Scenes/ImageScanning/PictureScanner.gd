@@ -18,6 +18,8 @@ var directory = Directory.new()
 
 var scanning = false
 
+var failedAttempts = 0
+
 var t = 3.0
 func _process(delta):
 	t += delta
@@ -31,12 +33,15 @@ func _process(delta):
 			if directory.current_is_dir():
 				pass
 			else:
-				if !(".import" in file_name) and (".jpg" in file_name or ".jpeg" in file_name):
+				if !(".import" in file_name) and (".jpg" in file_name or ".jpeg" in file_name or ".png" in file_name):
 					scanImage("res://Webcam/Webcam/Images/"+file_name)
 			file_name = directory.get_next()
 
 func scanImage(path):
 	if scanning || scannedFiles.has(path): return
+	
+	print(path)
+	scanning = true
 	
 	var file = File.new()
 	file.open(path,File.READ)
@@ -88,10 +93,11 @@ func _on_RetrieveRequest_request_completed(result, response_code, headers, body)
 	
 	TextDatabase.addText(lineArray)
 	
-	scanning = false
 	translateText(text)
 
+var lastTranslationText = ""
 func translateText(text):
+	lastTranslationText = text
 	$TranslationRequest.request(translationURL, 
 	["Content-Type: application/json",
 	"Authorization: Token "+emotionToken],
@@ -104,6 +110,15 @@ func translateText(text):
 
 func _on_TranslationRequest_request_completed(result, response_code, headers, body):
 	var data = body.get_string_from_utf8()
+	
+	if response_code != 200:
+		print("FAILED TRANSLATION "+str(response_code))
+		failedAttempts += 1
+		yield(get_tree().create_timer(5.0+failedAttempts*2), "timeout")
+		translateText(lastTranslationText)
+		return
+	
+	failedAttempts = 0
 	var json = JSON.parse(data)
 	
 	print("--------------")
@@ -111,11 +126,13 @@ func _on_TranslationRequest_request_completed(result, response_code, headers, bo
 	print("--------------")
 	print(json.result["translation_text"])
 	
-	yield(get_tree().create_timer(4.0), "timeout")
+	yield(get_tree().create_timer(3.0), "timeout")
 	
 	readEmotions(json.result["translation_text"])
 
+var lastEmotionText = ""
 func readEmotions(text):
+	lastEmotionText = text
 	$EmotionRequest.request(emotionURL, 
 	["Content-Type: application/json",
 	"Authorization: Token "+emotionToken],
@@ -124,6 +141,15 @@ func readEmotions(text):
 
 func _on_EmotionRequest_request_completed(result, response_code, headers, body):
 	var data = body.get_string_from_utf8()
+	
+	if response_code != 200:
+		print("FAILED EMOTION SCAN "+str(response_code))
+		failedAttempts += 1
+		yield(get_tree().create_timer(3.0+failedAttempts*2), "timeout")
+		readEmotions(lastEmotionText)
+		return
+	
+	failedAttempts = 0
 	var json = JSON.parse(data)
 	
 	print("--------------")
