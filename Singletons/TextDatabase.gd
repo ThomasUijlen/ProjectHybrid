@@ -14,8 +14,8 @@ var fear = 0.0
 var surprise = 0.0
 
 func addText(lines):
-	linesList.append(lines)
+	linesList.push_front(lines)
 
 func addEmotion(emotions):
-	emotionsList.append(emotions)
+	emotionsList.push_front(emotions)
 

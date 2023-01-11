@@ -79,10 +79,14 @@ func _on_RetrieveRequest_request_completed(result, response_code, headers, body)
 	var lines = json.result["analyzeResult"]["readResults"][0]["lines"]
 	
 	var text = ""
+	var lineArray = []
 	for line in lines:
 		print(line["text"])
 		text += line["text"]
 		text += " "
+		lineArray.append(line["text"])
+	
+	TextDatabase.addText(lineArray)
 	
 	scanning = false
 	translateText(text)
