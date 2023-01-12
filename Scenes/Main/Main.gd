@@ -2,10 +2,10 @@ extends Node2D
 
 var columns = [[],[],[],[]]
 
-var labelScene = load("res://Scenes/Visuals/Text/TextLabel.tscn")
+#var labelScene = load("res://Scenes/Visuals/Text/TextLabel.tscn")
 
 func _ready():
-	TextDatabase.connect("databaseChanged",Callable(self,"spawnLabel"))
+#	TextDatabase.connect("databaseChanged",Callable(self,"spawnLabel"))
 	TextDatabase.connect("databaseChanged",Callable(self,"updateEmotionCircle"))
 
 func updateEmotionCircle():
@@ -19,14 +19,21 @@ func updateEmotionCircle():
 	for emotion in emotions:
 		var score = TextDatabase.get(emotion)
 		
-		tween.tween_property($EmotionCircle.material, "shader_param/"+emotion+"Amount", score, 2.0)
+		tween.tween_property($SubViewport/EmotionCircle.material, "shader_param/"+emotion+"Amount", score, 2.0)
+	
+
+func _process(delta):
+	var image : Image = $SubViewport.get_texture().get_image()
+	var texture : Texture = ImageTexture.create_from_image(image)
+	$Node3D/Decal.texture_albedo = texture
+	$Node3D/Decal.texture_emission = texture
 #		$EmotionCircle.material.set("shader_param/"+emotion+"Amount", score)
 
-func spawnLabel():
-	var label = labelScene.instantiate()
-	label.setText(TextDatabase.linesList[0])
-	add_child(label)
-	addToColumn(label)
+#func spawnLabel():
+#	var label = labelScene.instantiate()
+#	label.setText(TextDatabase.linesList[0])
+#	add_child(label)
+#	addToColumn(label)
 
 func addToColumn(newLabel):
 	var c = null

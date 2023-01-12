@@ -1,4 +1,13 @@
+HTTPRequest
+Label
+CSGCylinder3D
+CSGBox3D
+CSGCombiner3D
 SpotLight3D
+Sprite2D
+Camera2D
+SubViewport
+Camera3D
 Decal
 DirectionalLight3D
 WorldEnvironment

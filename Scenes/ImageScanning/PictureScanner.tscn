@@ -13,7 +13,14 @@ script = ExtResource("1")
 
 [node name="EmotionRequest" type="HTTPRequest" parent="."]
 
+[node name="GetPicturesRequest" type="HTTPRequest" parent="."]
+
+[node name="GetRedirectURL" type="HTTPRequest" parent="."]
+max_redirects = 64
+
 [connection signal="request_completed" from="AnalyzeRequest" to="." method="_on_HTTPRequest_request_completed"]
 [connection signal="request_completed" from="RetrieveRequest" to="." method="_on_RetrieveRequest_request_completed"]
 [connection signal="request_completed" from="TranslationRequest" to="." method="_on_TranslationRequest_request_completed"]
 [connection signal="request_completed" from="EmotionRequest" to="." method="_on_EmotionRequest_request_completed"]
+[connection signal="request_completed" from="GetPicturesRequest" to="." method="_on_get_pictures_request_request_completed"]
+[connection signal="request_completed" from="GetRedirectURL" to="." method="_on_get_redirect_url_request_completed"]

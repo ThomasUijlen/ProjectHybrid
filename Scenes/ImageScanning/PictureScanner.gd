@@ -11,6 +11,9 @@ var emotionToken = "1730fc0aa4e5d95e8956f79441afa28560abee3e"
 
 var analyzeURL = "vision/v3.2/read/analyze"
 
+var googleFilesURL = "https://www.googleapis.com/drive/v3/files"
+var googleKEY = "AIzaSyCZx0nT_x5JTfz4XuaK9QH3uKtFJWYmSYQ"
+
 var operationLocation = ""
 
 var scannedFiles = []
@@ -19,22 +22,28 @@ var scanning = false
 
 var failedAttempts = 0
 
-var t = 3.0
-func _process(delta):
-	t += delta
-	if t > 3.0:
-		t = 0.0
-		
-		var directory = DirAccess.open("res://Webcam/Webcam/Images")
-		directory.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
-		var file_name = directory.get_next()
-		while file_name != "":
-			if directory.current_is_dir():
-				pass
-			else:
-				if !(".import" in file_name) and (".jpg" in file_name or ".jpeg" in file_name or ".png" in file_name):
-					scanImage("res://Webcam/Webcam/Images/"+file_name)
-			file_name = directory.get_next()
+func _ready():
+	$GetPicturesRequest.request("https://drive.google.com/drive/folders/1oTr5hZIYBpG38rh0dZVBo-4YpNmcQ7sfCsuAvVEh-kjAgu2uInxJNU5LHy6W3ZrHrfHYNsYN?usp=share_link", 
+	["Content-Type: application/json"],
+	false,
+	HTTPClient.METHOD_GET)
+
+#var t = 3.0
+#func _process(delta):
+#	t += delta
+#	if t > 3.0:
+#		t = 0.0
+#
+#		var directory = DirAccess.open("res://Webcam/Webcam/Images")
+#		directory.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
+#		var file_name = directory.get_next()
+#		while file_name != "":
+#			if directory.current_is_dir():
+#				pass
+#			else:
+#				if !(".import" in file_name) and (".jpg" in file_name or ".jpeg" in file_name or ".png" in file_name):
+#					scanImage("res://Webcam/Webcam/Images/"+file_name)
+#			file_name = directory.get_next()
 
 func scanImage(path):
 	if scanning || scannedFiles.has(path): return
@@ -171,3 +180,45 @@ func _on_EmotionRequest_request_completed(result, response_code, headers, body):
 
 
 
+
+
+func _on_get_pictures_request_request_completed(result, response_code, headers, body):
+	var data = body.get_string_from_utf8()
+	
+	var idPositions = []
+	
+	var currentI = 0
+	while currentI >= 0:
+		currentI = data.find("data-id=", currentI)
+		if currentI >= 0:
+			idPositions.append(currentI)
+			currentI += 1
+	
+	print(idPositions)
+	var itemIDList = []
+	for i in idPositions:
+		var id = data.substr(idPositions[0]).split("data-target")[0]
+		id = id.split("=")[1]
+		id = id.replace("\"", "")
+		itemIDList.append(id)
+		print(id)
+	
+	if response_code != 200:
+		print("FAILED FILE SCAN "+str(response_code))
+		return
+	
+	var json = JSON.parse_string(data)
+	
+	print("--------------")
+	print("succesful file scan "+str(response_code))
+	print("--------------")
+	
+	$GetRedirectURL.request("https://drive.google.com/uc?export=view&id="+itemIDList[0], 
+	["Content-Type: application/json"],
+	false,
+	HTTPClient.METHOD_GET)
+
+
+func _on_get_redirect_url_request_completed(result, response_code, headers, body):
+	var redirect = headers[5].replace("Location: ", "")
+	print(redirect)

@@ -1,4 +1,0 @@
-[gd_scene load_steps=4 format=3]
-
-[ext_resource type="FontFile" path="res://Assets/Fonts/NormalFont.tres" id="1"]
-[ext_resource type="Script" path="res://Scenes/Visuals/Text/TextLabel.gd" id="2"]
