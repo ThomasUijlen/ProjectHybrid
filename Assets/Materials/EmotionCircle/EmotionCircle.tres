@@ -1,0 +1,65 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://o3fxdac6dd4n"]
+
+[sub_resource type="Shader" id="1"]
+code = "// NOTE: Shader automatically converted from Godot Engine 3.5.1.stable.mono's CanvasItemMaterial.
+
+shader_type canvas_item;
+render_mode blend_mix;
+
+uniform vec4 sadnessColor : source_color;
+uniform vec4 joyColor : source_color;
+uniform vec4 loveColor : source_color;
+uniform vec4 angerColor : source_color;
+uniform vec4 fearColor : source_color;
+uniform vec4 surpriseColor : source_color;
+uniform float sadnessAmount = 0.1;
+uniform float joyAmount = 0.1;
+uniform float loveAmount = 0.1;
+uniform float angerAmount = 0.1;
+uniform float fearAmount = 0.1;
+uniform float surpriseAmount = 0.1;
+
+float map(float s, float a1, float a2, float b1, float b2)
+{
+    return b1 + (s-a1)*(b2-b1)/(a2-a1);
+}
+
+void fragment() {
+	vec2 a = UV;
+	vec2 b = vec2(0.5,0.5);
+	float angle = (atan(b.x-a.x, a.y-b.y) + 3.141592656) / 3.141592656;
+	float m = angle/2.0;
+	
+	float total = joyAmount+loveAmount+surpriseAmount+sadnessAmount+angerAmount+fearAmount;
+	float fear = fearAmount/total;
+	float anger = fear+angerAmount/total;
+	float sadness = anger+sadnessAmount/total;
+	float surprise = sadness+surpriseAmount/total;
+	float love = surprise+loveAmount/total;
+	float joy = love+joyAmount/total;
+	
+	vec4 c = vec4(0,0,0,1);
+	if(m < joy) c = joyColor;
+	if(m < love) c = loveColor;
+	if(m < surprise) c = surpriseColor;
+	if(m < sadness) c = sadnessColor;
+	if(m < anger) c = angerColor;
+	if(m < fear) c = fearColor;
+	
+	COLOR = c;
+}"
+
+[resource]
+shader = SubResource("1")
+shader_parameter/angerAmount = 0.1
+shader_parameter/angerColor = Color(0.184314, 0.345098, 0.909804, 1)
+shader_parameter/fearAmount = 0.1
+shader_parameter/fearColor = Color(0.45098, 0.0901961, 0.894118, 1)
+shader_parameter/joyAmount = 0.1
+shader_parameter/joyColor = Color(0.87451, 0.109804, 0.27451, 1)
+shader_parameter/loveAmount = 0.1
+shader_parameter/loveColor = Color(0.85098, 0.0196078, 0.494118, 1)
+shader_parameter/sadnessAmount = 0.1
+shader_parameter/sadnessColor = Color(0.0784314, 0.513726, 0.831373, 1)
+shader_parameter/surpriseAmount = 0.1
+shader_parameter/surpriseColor = Color(0.972549, 0.505882, 0.133333, 1)

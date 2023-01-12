@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "dgSpecHash": "FYem6/a1QdFJKZxAoiLTRhYGpUbpz3QnIuZnPLPK9APCNgW7gCa8HwmdzH2k/OZdCrH90gfDQSxM52b4oIUX/w==",
+  "success": false,
+  "projectFilePath": "C:\\Users\\thoma\\OneDrive\\Documenten\\GitHub\\ProjectHybrid\\Project Hybrid.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\thoma\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder\\godot.sourcegenerators\\4.0.0-beta.8\\godot.sourcegenerators.4.0.0-beta.8.nupkg.sha512",
+    "C:\\Users\\thoma\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder\\godotsharp\\4.0.0-beta.8\\godotsharp.4.0.0-beta.8.nupkg.sha512",
+    "C:\\Users\\thoma\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder\\godotsharpeditor\\4.0.0-beta.8\\godotsharpeditor.4.0.0-beta.8.nupkg.sha512",
+    "C:\\Users\\thoma\\.nuget\\packages\\microsoft.azure.cognitiveservices.vision.computervision\\7.0.1\\microsoft.azure.cognitiveservices.vision.computervision.7.0.1.nupkg.sha512",
+    "C:\\Users\\thoma\\.nuget\\packages\\microsoft.rest.clientruntime\\2.3.20\\microsoft.rest.clientruntime.2.3.20.nupkg.sha512",
+    "C:\\Users\\thoma\\.nuget\\packages\\microsoft.rest.clientruntime.azure\\3.3.18\\microsoft.rest.clientruntime.azure.3.3.18.nupkg.sha512",
+    "C:\\Users\\thoma\\.nuget\\packages\\newtonsoft.json\\13.0.2\\newtonsoft.json.13.0.2.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1202",
+      "level": "Error",
+      "message": "Package GodotSharp 4.0.0-beta.8 is not compatible with net472 (.NETFramework,Version=v4.7.2). Package GodotSharp 4.0.0-beta.8 supports: net6.0 (.NETCoreApp,Version=v6.0)",
+      "libraryId": "GodotSharp",
+      "targetGraphs": [
+        ".NETFramework,Version=v4.7.2"
+      ]
+    },
+    {
+      "code": "NU1202",
+      "level": "Error",
+      "message": "Package GodotSharpEditor 4.0.0-beta.8 is not compatible with net472 (.NETFramework,Version=v4.7.2). Package GodotSharpEditor 4.0.0-beta.8 supports: net6.0 (.NETCoreApp,Version=v6.0)",
+      "libraryId": "GodotSharpEditor",
+      "targetGraphs": [
+        ".NETFramework,Version=v4.7.2"
+      ]
+    }
+  ]
+}

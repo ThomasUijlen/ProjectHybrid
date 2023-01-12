@@ -1,0 +1,5 @@
+res://Scenes/Main/Main.tscn
+res://Materials/EmotionCircle/EmotionCircle.tres
+res://Scenes/ImageScanning/PictureScanner.gd
+res://Scenes/ImageScanning/PictureScanner.tscn
+res://Assets/Materials/EmotionCircle/EmotionCircle.tres

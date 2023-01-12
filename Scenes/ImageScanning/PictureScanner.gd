@@ -14,7 +14,6 @@ var analyzeURL = "vision/v3.2/read/analyze"
 var operationLocation = ""
 
 var scannedFiles = []
-var directory = Directory.new()
 
 var scanning = false
 
@@ -26,8 +25,8 @@ func _process(delta):
 	if t > 3.0:
 		t = 0.0
 		
-		directory.open("res://Webcam/Webcam/Images")
-		directory.list_dir_begin()
+		var directory = DirAccess.open("res://Webcam/Webcam/Images")
+		directory.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
 		var file_name = directory.get_next()
 		while file_name != "":
 			if directory.current_is_dir():
@@ -43,9 +42,8 @@ func scanImage(path):
 	print(path)
 	scanning = true
 	
-	var file = File.new()
-	file.open(path,File.READ)
-	var fileContent = file.get_buffer(file.get_len())
+	var file = FileAccess.open(path,FileAccess.READ)
+	var fileContent = file.get_buffer(file.get_length())
 	
 	$AnalyzeRequest.request_raw(endPoint+analyzeURL, 
 	["Host: "+host,
@@ -63,7 +61,7 @@ func _on_HTTPRequest_request_completed(result, response_code, headers, body):
 	attemptRead()
 
 func attemptRead():
-	yield(get_tree().create_timer(0.5), "timeout")
+	await get_tree().create_timer(0.5).timeout
 	
 	$RetrieveRequest.request(operationLocation, 
 	["Ocp-Apim-Subscription-Key: "+key],
@@ -72,16 +70,17 @@ func attemptRead():
 
 func _on_RetrieveRequest_request_completed(result, response_code, headers, body):
 	var data = body.get_string_from_utf8()
-	var json = JSON.parse(data)
+	var json = JSON.parse_string(data)
 	
-	if !json.result.has("analyzeResult"):
+	if response_code != 200 || !json.has("analyzeResult"):
+		print(response_code)
 		attemptRead()
 		return
 	
 	print("--------------")
 	print("succesful read "+str(response_code))
 	print("--------------")
-	var lines = json.result["analyzeResult"]["readResults"][0]["lines"]
+	var lines = json["analyzeResult"]["readResults"][0]["lines"]
 	
 	var text = ""
 	var lineArray = []
@@ -102,7 +101,7 @@ func translateText(text):
 	["Content-Type: application/json",
 	"Authorization: Token "+emotionToken],
 	false, 
-	HTTPClient.METHOD_POST, to_json(
+	HTTPClient.METHOD_POST, JSON.stringify(
 		{"text" : text,
 		"source" : "nld_Latn",
 		"target" : "eng_Latn"}
@@ -114,21 +113,21 @@ func _on_TranslationRequest_request_completed(result, response_code, headers, bo
 	if response_code != 200:
 		print("FAILED TRANSLATION "+str(response_code))
 		failedAttempts += 1
-		yield(get_tree().create_timer(5.0+failedAttempts*2), "timeout")
+		await get_tree().create_timer(5.0+failedAttempts*2).timeout
 		translateText(lastTranslationText)
 		return
 	
 	failedAttempts = 0
-	var json = JSON.parse(data)
+	var json = JSON.parse_string(data)
 	
 	print("--------------")
-	print("succesful translation "+str(response_code))
+	print("succesful position "+str(response_code))
 	print("--------------")
-	print(json.result["translation_text"])
+	print(json["translation_text"])
 	
-	yield(get_tree().create_timer(3.0), "timeout")
+	await get_tree().create_timer(3.0).timeout
 	
-	readEmotions(json.result["translation_text"])
+	readEmotions(json["translation_text"])
 
 var lastEmotionText = ""
 func readEmotions(text):
@@ -137,7 +136,7 @@ func readEmotions(text):
 	["Content-Type: application/json",
 	"Authorization: Token "+emotionToken],
 	false, 
-	HTTPClient.METHOD_POST, to_json({"text" : text}))
+	HTTPClient.METHOD_POST, JSON.new().stringify({"text" : text}))
 
 func _on_EmotionRequest_request_completed(result, response_code, headers, body):
 	var data = body.get_string_from_utf8()
@@ -145,19 +144,19 @@ func _on_EmotionRequest_request_completed(result, response_code, headers, body):
 	if response_code != 200:
 		print("FAILED EMOTION SCAN "+str(response_code))
 		failedAttempts += 1
-		yield(get_tree().create_timer(3.0+failedAttempts*2), "timeout")
+		await get_tree().create_timer(3.0+failedAttempts*2).timeout
 		readEmotions(lastEmotionText)
 		return
 	
 	failedAttempts = 0
-	var json = JSON.parse(data)
+	var json = JSON.parse_string(data)
 	
 	print("--------------")
 	print("succesful emotion analysis "+str(response_code))
 	print("--------------")
 	
 	var emotions = {}
-	for emotionData in json.result["scored_labels"]:
+	for emotionData in json["scored_labels"]:
 		var emotionName = emotionData["label"]
 		var score = emotionData["score"]
 		

@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Linq;
 
-public class CameraScript : Node2D
+public partial class CameraScript : Node2D
 {
     static string subscriptionKey = "9026448ec0974609883be3a3fd84b2d2";
     static string endpoint = "https://legendarischeserver.cognitiveservices.azure.com/";

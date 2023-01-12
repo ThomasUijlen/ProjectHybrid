@@ -5,8 +5,8 @@ var columns = [[],[],[],[]]
 var labelScene = load("res://Scenes/Visuals/Text/TextLabel.tscn")
 
 func _ready():
-	TextDatabase.connect("databaseChanged", self, "spawnLabel")
-	TextDatabase.connect("databaseChanged", self, "updateEmotionCircle")
+	TextDatabase.connect("databaseChanged",Callable(self,"spawnLabel"))
+	TextDatabase.connect("databaseChanged",Callable(self,"updateEmotionCircle"))
 
 func updateEmotionCircle():
 	var emotions = ["joy", "love", "surprise", "sadness", "fear", "anger"]
@@ -23,7 +23,7 @@ func updateEmotionCircle():
 #		$EmotionCircle.material.set("shader_param/"+emotion+"Amount", score)
 
 func spawnLabel():
-	var label = labelScene.instance()
+	var label = labelScene.instantiate()
 	label.setText(TextDatabase.linesList[0])
 	add_child(label)
 	addToColumn(label)
