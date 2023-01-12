@@ -9,7 +9,7 @@ var translationURL = "https://api.nlpcloud.io/v1/nllb-200-3-3b/translation"
 var emotionURL = "https://api.nlpcloud.io/v1/distilbert-base-uncased-emotion/sentiment"
 var emotionToken = "1730fc0aa4e5d95e8956f79441afa28560abee3e"
 
-var analyzeURL = "vision/v3.2/read/analyze"
+var analyzeURL = "vision/v3.1/read/analyze"
 
 var googleFilesURL = "https://www.googleapis.com/drive/v3/files"
 var googleKEY = "AIzaSyCZx0nT_x5JTfz4XuaK9QH3uKtFJWYmSYQ"
@@ -22,18 +22,12 @@ var scanning = false
 
 var failedAttempts = 0
 
-func _ready():
-	$GetPicturesRequest.request("https://drive.google.com/drive/folders/1oTr5hZIYBpG38rh0dZVBo-4YpNmcQ7sfCsuAvVEh-kjAgu2uInxJNU5LHy6W3ZrHrfHYNsYN?usp=share_link", 
-	["Content-Type: application/json"],
-	false,
-	HTTPClient.METHOD_GET)
-
-#var t = 3.0
-#func _process(delta):
-#	t += delta
-#	if t > 3.0:
-#		t = 0.0
-#
+var t = 3.0
+func _process(delta):
+	t += delta
+	if t > 3.0:
+		t = 0.0
+		scanDrive()
 #		var directory = DirAccess.open("res://Webcam/Webcam/Images")
 #		directory.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
 #		var file_name = directory.get_next()
@@ -46,25 +40,18 @@ func _ready():
 #			file_name = directory.get_next()
 
 func scanImage(path):
-	if scanning || scannedFiles.has(path): return
-	
-	print(path)
 	scanning = true
 	
-	var file = FileAccess.open(path,FileAccess.READ)
-	var fileContent = file.get_buffer(file.get_length())
-	
-	$AnalyzeRequest.request_raw(endPoint+analyzeURL, 
+	$AnalyzeRequest.request(endPoint+analyzeURL, 
 	["Host: "+host,
-		"Content-Type: application/octet-stream",
 		"Ocp-Apim-Subscription-Key: "+key],
 	false,
-	HTTPClient.METHOD_POST, fileContent)
-	
-	scannedFiles.append(path)
+	HTTPClient.METHOD_POST, JSON.stringify({"url" : path}))
+	print(JSON.stringify({"url" : path}))
 
 
 func _on_HTTPRequest_request_completed(result, response_code, headers, body):
+	print("operation location "+str(response_code))
 	operationLocation = headers[1].split(": ")[1]
 	
 	attemptRead()
@@ -130,7 +117,7 @@ func _on_TranslationRequest_request_completed(result, response_code, headers, bo
 	var json = JSON.parse_string(data)
 	
 	print("--------------")
-	print("succesful position "+str(response_code))
+	print("succesful translation "+str(response_code))
 	print("--------------")
 	print(json["translation_text"])
 	
@@ -181,6 +168,11 @@ func _on_EmotionRequest_request_completed(result, response_code, headers, body):
 
 
 
+func scanDrive():
+	$GetPicturesRequest.request("https://drive.google.com/drive/folders/1oTr5hZIYBpG38rh0dZVBo-4YpNmcQ7sfCsuAvVEh-kjAgu2uInxJNU5LHy6W3ZrHrfHYNsYN?usp=share_link", 
+	["Content-Type: application/json"],
+	false,
+	HTTPClient.METHOD_GET)
 
 func _on_get_pictures_request_request_completed(result, response_code, headers, body):
 	var data = body.get_string_from_utf8()
@@ -194,31 +186,36 @@ func _on_get_pictures_request_request_completed(result, response_code, headers, 
 			idPositions.append(currentI)
 			currentI += 1
 	
-	print(idPositions)
 	var itemIDList = []
 	for i in idPositions:
-		var id = data.substr(idPositions[0]).split("data-target")[0]
+		var id = data.substr(i).split("data-target")[0]
 		id = id.split("=")[1]
 		id = id.replace("\"", "")
 		itemIDList.append(id)
-		print(id)
 	
 	if response_code != 200:
 		print("FAILED FILE SCAN "+str(response_code))
 		return
 	
-	var json = JSON.parse_string(data)
+	print(itemIDList)
 	
 	print("--------------")
 	print("succesful file scan "+str(response_code))
 	print("--------------")
 	
-	$GetRedirectURL.request("https://drive.google.com/uc?export=view&id="+itemIDList[0], 
-	["Content-Type: application/json"],
-	false,
-	HTTPClient.METHOD_GET)
+	for id in itemIDList:
+		if scanning: return
+		if scannedFiles.has(id): continue
+		scannedFiles.append(id)
+		
+		scanning = true
+		$GetRedirectURL.request("https://drive.google.com/uc?export=view&id="+id, 
+		["Content-Type: application/json"],
+		false,
+		HTTPClient.METHOD_GET)
+		return
 
 
 func _on_get_redirect_url_request_completed(result, response_code, headers, body):
 	var redirect = headers[5].replace("Location: ", "")
-	print(redirect)
+	scanImage(redirect)

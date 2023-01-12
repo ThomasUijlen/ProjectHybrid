@@ -1,6 +1,2 @@
 res://Scenes/Main/Main.tscn
 res://Assets/Materials/EmotionCircle/EmotionCircle.tres
-res://Scenes/Main/Main.gd
-res://Assets/Models/CityUnwrapped.tres
-res://Scenes/ImageScanning/PictureScanner.gd
-res://Scenes/ImageScanning/PictureScanner.tscn

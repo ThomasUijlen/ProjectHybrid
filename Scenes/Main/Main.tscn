@@ -1,11 +1,75 @@
-[gd_scene load_steps=22 format=3 uid="uid://sxdtfapqi5gc"]
+[gd_scene load_steps=21 format=3 uid="uid://sxdtfapqi5gc"]
 
 [ext_resource type="PackedScene" uid="uid://crrst0nresde8" path="res://Scenes/ImageScanning/PictureScanner.tscn" id="1"]
 [ext_resource type="Script" path="res://Scenes/Main/Main.gd" id="2"]
+[ext_resource type="ArrayMesh" uid="uid://wbtavmcmm12" path="res://Assets/Models/CityModelUnwrapped.obj" id="3_k6np6"]
 [ext_resource type="Material" uid="uid://o3fxdac6dd4n" path="res://Assets/Materials/EmotionCircle/EmotionCircle.tres" id="3_l23ja"]
-[ext_resource type="ArrayMesh" uid="uid://bfca271u1aife" path="res://Assets/Models/City.tres" id="3_usqm5"]
-[ext_resource type="ArrayMesh" uid="uid://b2lqnpneblh6l" path="res://Assets/Models/CityUnwrapped.tres" id="4_trevo"]
 [ext_resource type="FontFile" path="res://Assets/Fonts/Roboto-Regular.tres" id="6_k6h2d"]
+
+[sub_resource type="Shader" id="Shader_dkdln"]
+code = "// NOTE: Shader automatically converted from Godot Engine 4.0.beta11.mono's StandardMaterial3D.
+
+shader_type spatial;
+render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx;
+uniform vec4 albedo : source_color;
+uniform sampler2D texture_albedo : source_color,filter_linear_mipmap,repeat_enable;
+uniform float point_size : hint_range(0,128);
+uniform float roughness : hint_range(0,1);
+uniform sampler2D texture_metallic : hint_default_white,filter_linear_mipmap,repeat_enable;
+uniform vec4 metallic_texture_channel;
+uniform sampler2D texture_roughness : hint_roughness_r,filter_linear_mipmap,repeat_enable;
+uniform float specular;
+uniform float metallic;
+uniform vec3 uv1_scale;
+uniform vec3 uv1_offset;
+uniform vec3 uv2_scale;
+uniform vec3 uv2_offset;
+uniform vec3 circleOffset;
+uniform float distanceMod = 1.0;
+
+varying float alpha;
+void vertex() {
+	alpha = 1.0-min(distance(circleOffset, VERTEX)/distanceMod, 1.0);
+//	alpha += snoise(VERTEX*20.0 + TIME*0.1)*0.05;
+	UV=UV*uv1_scale.xy+uv1_offset.xy;
+}
+
+
+
+
+
+
+void fragment() {
+	vec2 base_uv = UV;
+	vec4 albedo_tex = texture(texture_albedo,base_uv);
+	ALBEDO = albedo.rgb * albedo_tex.rgb;
+	float metallic_tex = dot(texture(texture_metallic,base_uv),metallic_texture_channel);
+	METALLIC = metallic_tex * metallic;
+	vec4 roughness_texture_channel = vec4(1.0,0.0,0.0,0.0);
+	float roughness_tex = dot(texture(texture_roughness,base_uv),roughness_texture_channel);
+	ROUGHNESS = roughness_tex * roughness;
+	SPECULAR = specular;
+	
+	ALPHA_SCISSOR_THRESHOLD = 0.5;
+	ALPHA = alpha;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jkwq5"]
+render_priority = 0
+shader = SubResource("Shader_dkdln")
+shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 1.0
+shader_parameter/metallic_texture_channel = Plane(1, 0, 0, 0)
+shader_parameter/specular = 0.5
+shader_parameter/metallic = 0.0
+shader_parameter/uv1_scale = Vector3(1, 1, 1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+shader_parameter/circleOffset = Vector3(0.312, 0, 0)
+shader_parameter/distanceMod = 6.581
 
 [sub_resource type="Shader" id="Shader_wfr4f"]
 code = "// NOTE: Shader automatically converted from Godot Engine 4.0.beta11.mono's StandardMaterial3D.
@@ -167,71 +231,6 @@ shader_parameter/circleOffset = Vector3(0.312, 0, 0)
 shader_parameter/distanceMod = 5.804
 shader_parameter/texture_albedo = SubResource("ViewportTexture_ntuxf")
 
-[sub_resource type="Shader" id="Shader_dkdln"]
-code = "// NOTE: Shader automatically converted from Godot Engine 4.0.beta11.mono's StandardMaterial3D.
-
-shader_type spatial;
-render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlick_ggx;
-uniform vec4 albedo : source_color;
-uniform sampler2D texture_albedo : source_color,filter_linear_mipmap,repeat_enable;
-uniform float point_size : hint_range(0,128);
-uniform float roughness : hint_range(0,1);
-uniform sampler2D texture_metallic : hint_default_white,filter_linear_mipmap,repeat_enable;
-uniform vec4 metallic_texture_channel;
-uniform sampler2D texture_roughness : hint_roughness_r,filter_linear_mipmap,repeat_enable;
-uniform float specular;
-uniform float metallic;
-uniform vec3 uv1_scale;
-uniform vec3 uv1_offset;
-uniform vec3 uv2_scale;
-uniform vec3 uv2_offset;
-uniform vec3 circleOffset;
-uniform float distanceMod = 1.0;
-
-varying float alpha;
-void vertex() {
-	alpha = 1.0-min(distance(circleOffset, VERTEX)/distanceMod, 1.0);
-//	alpha += snoise(VERTEX*20.0 + TIME*0.1)*0.05;
-	UV=UV*uv1_scale.xy+uv1_offset.xy;
-}
-
-
-
-
-
-
-void fragment() {
-	vec2 base_uv = UV;
-	vec4 albedo_tex = texture(texture_albedo,base_uv);
-	ALBEDO = albedo.rgb * albedo_tex.rgb;
-	float metallic_tex = dot(texture(texture_metallic,base_uv),metallic_texture_channel);
-	METALLIC = metallic_tex * metallic;
-	vec4 roughness_texture_channel = vec4(1.0,0.0,0.0,0.0);
-	float roughness_tex = dot(texture(texture_roughness,base_uv),roughness_texture_channel);
-	ROUGHNESS = roughness_tex * roughness;
-	SPECULAR = specular;
-	
-	ALPHA_SCISSOR_THRESHOLD = 0.5;
-	ALPHA = alpha;
-}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_jkwq5"]
-render_priority = 0
-shader = SubResource("Shader_dkdln")
-shader_parameter/albedo = Color(1, 1, 1, 1)
-shader_parameter/point_size = 1.0
-shader_parameter/roughness = 1.0
-shader_parameter/metallic_texture_channel = Plane(1, 0, 0, 0)
-shader_parameter/specular = 0.5
-shader_parameter/metallic = 0.0
-shader_parameter/uv1_scale = Vector3(1, 1, 1)
-shader_parameter/uv1_offset = Vector3(0, 0, 0)
-shader_parameter/uv2_scale = Vector3(1, 1, 1)
-shader_parameter/uv2_offset = Vector3(0, 0, 0)
-shader_parameter/circleOffset = Vector3(0.312, 0, 0)
-shader_parameter/distanceMod = 6.581
-
 [sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_654oj"]
 energy_multiplier = 2.0
 
@@ -378,23 +377,16 @@ script = ExtResource("2")
 
 [node name="Node3D" type="Node3D" parent="."]
 
-[node name="CityModel" type="MeshInstance3D" parent="Node3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.49819, -9.53674e-07, -0.654954)
-visible = false
-material_override = SubResource("ShaderMaterial_xowme")
-mesh = ExtResource("3_usqm5")
-skeleton = NodePath("../..")
-
 [node name="CityUnwrapped2" type="MeshInstance3D" parent="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.395269, -9.53674e-07, -0.00941402)
 material_override = SubResource("ShaderMaterial_jkwq5")
-mesh = ExtResource("4_trevo")
+mesh = ExtResource("3_k6np6")
 skeleton = NodePath("../..")
 
 [node name="CityUnwrapped" type="MeshInstance3D" parent="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.395269, -9.53674e-07, -0.00941402)
 material_override = SubResource("ShaderMaterial_xowme")
-mesh = ExtResource("4_trevo")
+mesh = ExtResource("3_k6np6")
 skeleton = NodePath("../..")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Node3D"]
@@ -412,7 +404,10 @@ texture_albedo = SubResource("ViewportTexture_3vxne")
 texture_emission = SubResource("ViewportTexture_6wvsh")
 emission_energy = 0.0
 
-[node name="Camera3D" type="Camera3D" parent="Node3D"]
+[node name="CameraAnchor" type="Node3D" parent="Node3D"]
+transform = Transform3D(0.699663, 0, -0.714473, 0, 1, 0, 0.714473, 0, 0.699663, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Node3D/CameraAnchor"]
 transform = Transform3D(1, 0, 0, 0, 0.703395, 0.710799, 0, -0.710799, 0.703395, 0, 4.014, 4.563)
 fov = 64.3
 size = 5.424
