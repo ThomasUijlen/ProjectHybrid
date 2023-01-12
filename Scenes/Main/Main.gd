@@ -6,6 +6,21 @@ var labelScene = load("res://Scenes/Visuals/Text/TextLabel.tscn")
 
 func _ready():
 	TextDatabase.connect("databaseChanged", self, "spawnLabel")
+	TextDatabase.connect("databaseChanged", self, "updateEmotionCircle")
+
+func updateEmotionCircle():
+	var emotions = ["joy", "love", "surprise", "sadness", "fear", "anger"]
+	
+	var tween = get_tree().create_tween()
+#	tween.set_ease(Tween.EASE_OUT_IN)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.set_parallel(true)
+	
+	for emotion in emotions:
+		var score = TextDatabase.get(emotion)
+		
+		tween.tween_property($EmotionCircle.material, "shader_param/"+emotion+"Amount", score, 2.0)
+#		$EmotionCircle.material.set("shader_param/"+emotion+"Amount", score)
 
 func spawnLabel():
 	var label = labelScene.instance()
