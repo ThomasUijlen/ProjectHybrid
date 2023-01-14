@@ -2,11 +2,24 @@ extends Node2D
 
 var columns = [[],[],[],[]]
 
-#var labelScene = load("res://Scenes/Visuals/Text/TextLabel.tscn")
+var labelScene = load("res://Scenes/Visuals/PostIt/postit.tscn")
+
+var image : Image
+@export var pixels = 10
 
 func _ready():
-#	TextDatabase.connect("databaseChanged",Callable(self,"spawnLabel"))
+	TextDatabase.connect("databaseChanged",Callable(self,"spawnLabel"))
 	TextDatabase.connect("databaseChanged",Callable(self,"updateEmotionCircle"))
+	image = load("res://icon.png").get_image()
+	
+	image.resize(pixels, pixels)
+	image.fill(Color.WHITE)
+	
+	randomize()
+	setPixelColor(Vector2.ZERO, Color.WHITE)
+	
+#	for i in range(20):
+#		setPixelColor(Vector2(randf_range(0.0,1.0), randf_range(0.0,1.0)), Color.RED)
 
 func updateEmotionCircle():
 	var emotions = ["joy", "love", "surprise", "sadness", "fear", "anger"]
@@ -29,28 +42,48 @@ func _process(delta):
 	$Node3D/Decal.texture_emission = texture
 #		$EmotionCircle.material.set("shader_param/"+emotion+"Amount", score)
 
-#func spawnLabel():
-#	var label = labelScene.instantiate()
-#	label.setText(TextDatabase.linesList[0])
-#	add_child(label)
-#	addToColumn(label)
+func spawnLabel():
+	var label = labelScene.instantiate()
+	label.setText(TextDatabase.linesList[0])
+	
+	var strongestEmotion = ""
+	var strongestScore = 0.0
+	for emotion in TextDatabase.emotionsList[0]:
+		var score = TextDatabase.emotionsList[0][emotion]
+		if strongestEmotion == "" || score > strongestScore:
+			strongestScore = score
+			strongestEmotion = emotion
+	
+	label.setColor(getColor(strongestEmotion))
+	
+	$SubViewport.add_child(label)
+	label.position = Vector2(randf_range(0,1000),randf_range(0,1000))
+	var direction = label.position.direction_to(Vector2(500,500))
+	label.look_at(label.position - direction)
 
-func addToColumn(newLabel):
-	var c = null
-	var i = 0
-	for ci in range(columns.size()):
-		var column = columns[ci]
-		if c == null or column.size() < c.size():
-			c = column
-			i = ci
+
+func setPixelColor(rawPosition : Vector2, color : Color):
+	rawPosition /= 1000.0
+	var imagePosition := rawPosition*pixels
+	imagePosition = imagePosition.floor()
 	
-	c.push_front(newLabel)
-	newLabel.position.x = (1920.0/columns.size())*i + 40.0
-	newLabel.position.y = -300
+	image.set_pixel(imagePosition.x, imagePosition.y, color)
 	
-	for li in range(c.size()):
-		var label = c[li]
-		var tween = get_tree().create_tween()
-		tween.set_ease(Tween.EASE_IN_OUT)
-		tween.set_trans(Tween.TRANS_QUAD)
-		tween.tween_property(label, "position", label.position + Vector2(0,li*320) + (Vector2.ZERO if li > 0 else Vector2(0,300+320)), 2.0)
+	$SubViewport/EmotionPixels.texture = ImageTexture.create_from_image(image)
+
+func getColor(emotion):
+	var c : Color = Color.BLACK
+	if emotion == "joy":
+		c = Color("FFBE0B")
+	if emotion == "surprise":
+		c = Color("FFBE0B")
+	if emotion == "love":
+		c = Color("FF006E")
+	if emotion == "sadness":
+		c = Color("3A86FF")
+	if emotion == "anger":
+		c = Color("a4243b")
+	if emotion == "fear":
+		c = Color("8338EC")
+	
+	return c
