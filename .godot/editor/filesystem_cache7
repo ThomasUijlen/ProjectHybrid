@@ -1,5 +1,5 @@
 0b7126e0c6e86d3ec295a72f5aa6e0bd
-::res://::1673554692
+::res://::1673723109
 default_env.tres::Environment::-1::1673531463::0::1::::<><>::
 export_presets.cfg::TextFile::-1::1619053235::0::1::::<><>::
 icon.png::CompressedTexture2D::1418711844930949694::1671553345::1673531487::1::::<><>::
@@ -10,8 +10,8 @@ NormalFont.tres::FontFile::-1::1673532089::0::1::::<><>::res://Assets/Fonts/Robo
 Roboto-Regular.tres::FontFile::-1::1673531463::0::1::::<><>::
 Roboto-Regular.ttf::FontFile::9103860051225822556::1357686000::1673532089::1::::<><>::
 ::res://Assets/Materials/::1673447797
-::res://Assets/Materials/EmotionCircle/::1673551572
-EmotionCircle.tres::ShaderMaterial::1040791203972242107::1673551572::0::1::::<><>::
+::res://Assets/Materials/EmotionCircle/::1673606574
+EmotionCircle.tres::ShaderMaterial::1040791203972242107::1673606574::0::1::::<><>::
 ::res://Assets/Models/::1673546768
 CityModelUnwrapped.obj::Mesh::45510990655551487::1673537116::1673537129::1::::<><>::
 ::res://Images/::1673531495
@@ -29,10 +29,10 @@ TestImage.png::CompressedTexture2D::7225231319210741217::1671751280::1673531488:
 ::res://Scenes/ImageScanning/::1673551878
 PictureScanner.gd::GDScript::-1::1673551878::0::1::::<>Node2D<>::
 PictureScanner.tscn::PackedScene::6002274300950427877::1673551752::0::1::::<><>::res://Scenes/ImageScanning/PictureScanner.gd
-::res://Scenes/Main/::1673551752
+::res://Scenes/Main/::1673610204
 CameraScript.cs::CSharpScript::-1::1673531463::0::1::::<><>::
 Main.gd::GDScript::-1::1673534306::0::1::::<>Node2D<>::
-Main.tscn::PackedScene::1311096218210462950::1673551752::0::1::::<><>::uid://crrst0nresde8<>res://Scenes/Main/Main.gd<>uid://wbtavmcmm12<>uid://o3fxdac6dd4n<>res://Assets/Fonts/Roboto-Regular.tres
+Main.tscn::PackedScene::1311096218210462950::1673610204::0::1::::<><>::uid://crrst0nresde8<>res://Scenes/Main/Main.gd<>uid://wbtavmcmm12<>uid://o3fxdac6dd4n<>res://Assets/Fonts/Roboto-Regular.tres
 ::res://Scenes/Visuals/::1673399392
 ::res://Scenes/Visuals/Text/::1673532574
 TextLabel.gd::GDScript::-1::1673531463::0::1::::<>Node2D<>::

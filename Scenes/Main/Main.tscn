@@ -414,7 +414,7 @@ size = 5.424
 
 [node name="SpotLight3D" type="SpotLight3D" parent="Node3D"]
 transform = Transform3D(1, 0, 0, 0, -5.96046e-08, 1, 0, -1, -5.96046e-08, -0.0396783, 3.5932, 0)
-light_energy = 17.268
+light_energy = 10.046
 shadow_enabled = true
 spot_range = 8.99666
 spot_angle = 60.6146
@@ -448,7 +448,16 @@ size = Vector2i(1000, 1000)
 size_2d_override = Vector2i(1000, 1000)
 render_target_update_mode = 4
 
+[node name="ClearColor" type="ColorRect" parent="SubViewport"]
+offset_right = 1000.0
+offset_bottom = 1000.0
+
+[node name="EmotionPixels" type="TextureRect" parent="SubViewport"]
+offset_right = 1000.0
+offset_bottom = 1000.0
+
 [node name="EmotionCircle" type="ColorRect" parent="SubViewport"]
+visible = false
 material = ExtResource("3_l23ja")
 offset_right = 1000.0
 offset_bottom = 1000.0
