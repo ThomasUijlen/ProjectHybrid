@@ -1,5 +1,4 @@
-res://Scenes/Main/Main.tscn
+res://Scenes/Main/MainProjected.tscn
 res://Assets/Materials/EmotionCircle/EmotionCircle.tres
 res://Scenes/Main/Main.gd
-res://Scenes/Visuals/PostIt/postit.tscn
-res://Scenes/Visuals/PostIt/postit.gd
+res://Scenes/Main/Main.tscn

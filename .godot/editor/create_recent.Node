@@ -1,8 +1,10 @@
-GPUParticles2D
+Sprite2D
+SubViewport
+ColorRect
 Node2D
+GPUParticles2D
 AnimationPlayer
 Label
-Sprite2D
 TextureRect
 Node3D
 HTTPRequest
@@ -11,7 +13,6 @@ CSGBox3D
 CSGCombiner3D
 SpotLight3D
 Camera2D
-SubViewport
 Camera3D
 Decal
 DirectionalLight3D
